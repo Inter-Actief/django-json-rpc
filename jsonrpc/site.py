@@ -1,4 +1,4 @@
-import datetime, decimal
+import datetime, decimal, logging
 from functools import wraps
 from uuid import uuid1
 from jsonrpc._json import loads, dumps
@@ -15,6 +15,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 NoneType = type(None)
 encode_kw = lambda p: dict([(str(k), v) for k, v in p.iteritems()])
+
+logger = logging.getLogger(__name__)
 
 def encode_kw11(p):
   if not type(p) is dict:
@@ -182,6 +184,10 @@ class JSONRPCSite(object):
       status = e.status
     except Exception, e:
       # exception missed by others
+
+      # 2014-09-30: Lennart Buit, added the exception to a logger
+      logger.exception(e)
+
       signals.got_request_exception.send(sender=self.__class__, request=request)
       other_error = OtherError(e)
       response['error'] = other_error.json_rpc_format

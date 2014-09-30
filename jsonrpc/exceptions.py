@@ -1,8 +1,10 @@
 try:
   from django.utils.translation import gettext as _
-  _("You're lazy...") # this function lazy-loads settings
+  from django.utils.translation import gettext_lazy as _l
+  _l("You're lazy...") # this function lazy-loads settings
 except (ImportError, NameError):
   _ = lambda t, *a, **k: t
+  _l = lambda t, *a, **k: t
 
 class Error(Exception):
   """ Error class based on the JSON-RPC 2.0 specs 
@@ -53,29 +55,29 @@ class Error(Exception):
 class ParseError(Error):
   """ Invalid JSON. An error occurred on the server while parsing the JSON text. """
   code = -32700
-  message = _('Parse error.')
+  message = _l('Parse error.')
   
 class InvalidRequestError(Error):
   """ The received JSON is not a valid JSON-RPC Request. """
   code = -32600
-  message = _('Invalid Request.')
+  message = _l('Invalid Request.')
   status = 400
   
 class MethodNotFoundError(Error):
   """ The requested remote-procedure does not exist / is not available. """
   code = -32601
-  message = _('Method not found.')
+  message = _l('Method not found.')
   status = 404
   
 class InvalidParamsError(Error):
   """ Invalid method parameters. """
   code = -32602
-  message = _('Invalid params.')
+  message = _l('Invalid params.')
   
 class ServerError(Error):
   """ Internal JSON-RPC error. """
   code = -32603	
-  message = _('Internal error.')
+  message = _l('Internal error.')
   
 # -32099..-32000    Server error.     Reserved for implementation-defined server-errors.  
 
@@ -84,16 +86,16 @@ class ServerError(Error):
 
 class RequestPostError(InvalidRequestError):
   """ JSON-RPC requests must be POST """
-  message = _('JSON-RPC requests must be POST')
+  message = _l('JSON-RPC requests must be POST')
 
 class InvalidCredentialsError(Error):
   """ Invalid login credentials """
   code = 401
-  message = _('Invalid login credentials')
+  message = _l('Invalid login credentials')
   status = 401
   
 class OtherError(Error):
   """ catchall error """
   code = 500
-  message = _('Error missed by other exceptions')
+  message = _l('Error missed by other exceptions')
   status = 500

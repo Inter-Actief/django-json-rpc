@@ -197,7 +197,7 @@ class JSONRPCSite(object):
       if settings.DEBUG:
         other_error = OtherError(e)
       else:
-        other_error = OtherError()
+        other_error = OtherError("Internal Server Error")
 
       response['error'] = other_error.json_rpc_format
       status = other_error.status

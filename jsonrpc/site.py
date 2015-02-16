@@ -5,6 +5,8 @@ from jsonrpc._json import loads, dumps
 from jsonrpc.exceptions import *
 from jsonrpc.types import *
 from django.core import signals
+from django.conf import settings
+
 empty_dec = lambda f: f
 try:
   from django.views.decorators.csrf import csrf_exempt
@@ -182,14 +184,21 @@ class JSONRPCSite(object):
       if version in ('1.1', '2.0') and 'result' in response:
         response.pop('result')
       status = e.status
-    except Exception, e:
+    except Exception as e:
       # exception missed by others
 
-      # 2014-09-30: Lennart Buit, added the exception to a logger
-      logger.exception(e)
+      # Put exceptions into the logger
+      logger.exception("Catched generic exception while generating jsonrpc response.")
 
       signals.got_request_exception.send(sender=self.__class__, request=request)
-      other_error = OtherError(e)
+
+      # Put stacktrace into the OtherError only if debug is enabled
+      # Its also in the logger anyway, so on production systems its in the logs
+      if settings.DEBUG:
+        other_error = OtherError(e)
+      else:
+        other_error = OtherError()
+
       response['error'] = other_error.json_rpc_format
       status = other_error.status
       if version in ('1.1', '2.0') and 'result' in response:

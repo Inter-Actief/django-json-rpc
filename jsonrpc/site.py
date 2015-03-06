@@ -179,17 +179,12 @@ class JSONRPCSite(object):
       status = 200
     
     except Error, e:
-      signals.got_request_exception.send(sender=self.__class__, request=request)
       response['error'] = e.json_rpc_format
       if version in ('1.1', '2.0') and 'result' in response:
         response.pop('result')
       status = e.status
     except Exception as e:
       # exception missed by others
-
-      # Put exceptions into the logger
-      logger.exception("Catched generic exception while generating jsonrpc response.")
-
       signals.got_request_exception.send(sender=self.__class__, request=request)
 
       # Put stacktrace into the OtherError only if debug is enabled
@@ -245,13 +240,13 @@ class JSONRPCSite(object):
       
       json_rpc = dumps(response, cls=json_encoder)
     except Error, e:
-      signals.got_request_exception.send(sender=self.__class__, request=request)
       response['error'] = e.json_rpc_format
       status = e.status
       json_rpc = dumps(response, cls=json_encoder)
     except Exception, e:
       # exception missed by others
       signals.got_request_exception.send(sender=self.__class__, request=request)
+
       other_error = OtherError(e)
       response['result'] = None
       response['error'] = other_error.json_rpc_format
